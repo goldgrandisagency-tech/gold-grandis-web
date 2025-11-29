@@ -1,12 +1,12 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
+import "./globals.css"; // <--- INI KABEL PENTINGNYA! JANGAN SAMPAI HILANG
 
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Gold Grandis Property",
-  description: "Agency Property Terpercaya di Jabodetabek",
+  description: "Agency Property Terpercaya",
 };
 
 export default function RootLayout({
@@ -17,10 +17,10 @@ export default function RootLayout({
   return (
     <html lang="id" className="scroll-smooth">
       <head>
-        {/* Link FontAwesome supaya icon sama persis kayak request */}
+        {/* Link FontAwesome untuk Icon */}
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
       </head>
-      <body className={`${inter.className} bg-gray-50 text-gray-800 relative`}>
+      <body className={inter.className}>
         {children}
       </body>
     </html>

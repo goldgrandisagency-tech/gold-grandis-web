@@ -2,25 +2,23 @@
 "use client";
 
 import { useEffect, useState } from 'react';
-import { db } from './lib/firebase';
+import { db } from './lib/firebase'; 
 import { collection, getDocs, limit, query } from 'firebase/firestore';
 import Link from 'next/link';
-import { Search, MapPin, Phone, Menu, Facebook, Instagram, Bed, Bath, X, MessageCircle, Maximize2, Home, ArrowRight } from 'lucide-react';
 
-export default function HomePage() {
+export default function Home() {
   const [properties, setProperties] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedProp, setSelectedProp] = useState<any>(null); // State untuk Pop-up
-  const [activeImageIndex, setActiveImageIndex] = useState(0); // Untuk slider foto di pop-up
 
-  // --- AMBIL DATA ---
+  // --- AMBIL DATA DARI FIREBASE ---
   useEffect(() => {
     const fetchProperties = async () => {
       try {
+        // Ambil 6 properti terbaru
         const q = query(collection(db, "properties"), limit(6));
         const querySnapshot = await getDocs(q);
-        const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setProperties(data);
+        const dataRumah = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        setProperties(dataRumah);
       } catch (error) { console.error(error); }
       setLoading(false);
     };
@@ -31,227 +29,209 @@ export default function HomePage() {
     return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(number);
   }
 
-  // Fungsi Buka Pop-up
-  const openModal = (prop: any) => {
-    setSelectedProp(prop);
-    setActiveImageIndex(0);
-    document.body.style.overflow = 'hidden'; // Matikan scroll belakang
-  }
-
-  // Fungsi Tutup Pop-up
-  const closeModal = () => {
-    setSelectedProp(null);
-    document.body.style.overflow = 'auto'; // Nyalakan scroll
-  }
-
   return (
-    <main className="min-h-screen bg-slate-50 font-sans text-slate-800">
+    <main>
       
-      {/* --- 1. NAVBAR TRANSPARAN & MODERN --- */}
-      <nav className="fixed top-0 w-full z-40 bg-white/80 backdrop-blur-md border-b border-slate-200 transition-all">
-        <div className="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-3">
-             <img src="/logo.jpg" alt="Logo" className="h-10 w-auto rounded-md" />
-             <div>
-                <h1 className="text-xl font-bold text-[#0a2558] tracking-tight leading-none">GOLD GRANDIS</h1>
-                <p className="text-[10px] font-bold text-[#d4af37] tracking-[0.3em]">PROPERTY</p>
-             </div>
-          </div>
-          
-          <div className="hidden md:flex gap-8 text-sm font-semibold text-slate-600">
-            <Link href="/" className="text-[#0a2558]">Beranda</Link>
-            <Link href="/properti" className="hover:text-[#0a2558] transition">Listing</Link>
-            <Link href="/tentang-kami" className="hover:text-[#0a2558] transition">Tentang Kami</Link>
-            <Link href="/admin" className="hover:text-[#0a2558] transition">Admin</Link>
-          </div>
+      {/* FLOATING WHATSAPP */}
+      <a href="https://wa.me/6285117490500" target="_blank" className="fixed bottom-6 right-6 z-50 bg-[#25D366] text-white w-16 h-16 rounded-full flex items-center justify-center shadow-lg animate-pulse-glow hover:scale-110 transition pointer-events-auto">
+         <i className="fa-brands fa-whatsapp text-4xl"></i>
+      </a>
 
-          <button className="md:hidden text-[#0a2558]"><Menu/></button>
-        </div>
-      </nav>
-
-      {/* --- 2. HERO SECTION (FULL SCREEN & CLEAN) --- */}
-      <div className="relative h-screen min-h-[600px] flex items-center justify-center overflow-hidden">
-        {/* Background Video/Image */}
-        <div className="absolute inset-0 z-0">
-          <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?q=80&w=2000&auto=format&fit=crop" className="w-full h-full object-cover"/>
-          <div className="absolute inset-0 bg-gradient-to-b from-[#0a2558]/80 to-slate-900/60"></div>
-        </div>
-
-        <div className="relative z-10 text-center px-4 max-w-4xl mt-10">
-          <span className="inline-block py-1 px-3 rounded-full bg-[#d4af37]/20 border border-[#d4af37] text-[#d4af37] text-xs font-bold tracking-widest mb-6 backdrop-blur-sm">
-            AGENCY PROPERTY JABODETABEK
-          </span>
-          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 leading-tight drop-shadow-lg">
-            Hunian Mewah,<br/>Investasi Masa Depan.
-          </h1>
-          <p className="text-slate-200 text-lg md:text-xl font-light mb-10 max-w-2xl mx-auto">
-            Temukan properti eksklusif dengan legalitas terjamin dan proses KPR yang kami bantu sampai tuntas.
-          </p>
-
-          {/* Search Bar Floating */}
-          <div className="bg-white/95 backdrop-blur-xl p-2 rounded-full shadow-2xl max-w-2xl mx-auto flex items-center gap-2 pl-6 pr-2">
-             <Search className="text-slate-400" size={20}/>
-             <input type="text" placeholder="Cari lokasi (Misal: Jagakarsa)..." className="bg-transparent flex-1 outline-none text-slate-700 placeholder:text-slate-400 py-3"/>
-             <Link href="/properti" className="bg-[#0a2558] hover:bg-blue-900 text-white px-8 py-3 rounded-full font-semibold transition shadow-lg flex items-center gap-2">
-               Cari
-             </Link>
-          </div>
-        </div>
-      </div>
-
-      {/* --- 3. LISTING TERBARU (PREMIUM CARDS) --- */}
-      <section className="py-24 px-6 max-w-7xl mx-auto">
-        <div className="flex justify-between items-end mb-12">
-           <div>
-              <h2 className="text-3xl md:text-4xl font-bold text-[#0a2558]">Pilihan Editor</h2>
-              <p className="text-slate-500 mt-2">Properti terbaik yang baru saja kami kurasi.</p>
-           </div>
-           <Link href="/properti" className="hidden md:flex items-center gap-2 text-[#d4af37] font-bold hover:gap-3 transition-all">
-              Lihat Semua <ArrowRight size={18}/>
-           </Link>
-        </div>
-
-        {loading && <div className="text-center py-20">Mengambil data...</div>}
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-          {properties.map((item) => (
-            <div 
-              key={item.id} 
-              onClick={() => openModal(item)} // KLIK KARTU BUAT BUKA POPUP
-              className="group bg-white rounded-3xl overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-2 transition-all duration-300 cursor-pointer border border-slate-100"
-            >
-              <div className="relative h-72 overflow-hidden">
-                <div className="absolute top-4 left-4 bg-white/90 backdrop-blur text-[#0a2558] text-xs font-bold px-4 py-2 rounded-full z-10 shadow-lg">
-                   {item.type || "Properti"}
-                </div>
-                <img src={item.image} alt={item.title} className="w-full h-full object-cover group-hover:scale-110 transition duration-700"/>
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition"></div>
-                <div className="absolute bottom-4 left-4 right-4 text-white">
-                   <p className="text-2xl font-bold text-[#d4af37] shadow-black drop-shadow-md">{formatRupiah(item.price)}</p>
-                </div>
-              </div>
-
-              <div className="p-6">
-                <h3 className="font-bold text-xl text-[#0a2558] mb-2 line-clamp-1 group-hover:text-blue-700 transition">{item.title}</h3>
-                <div className="flex items-center gap-2 text-slate-500 text-sm mb-6">
-                   <MapPin size={16} className="text-[#d4af37]"/> {item.location}
-                </div>
-                
-                <div className="grid grid-cols-3 gap-2 border-t border-slate-100 pt-4">
-                   <div className="text-center">
-                      <span className="block text-slate-400 text-xs font-medium mb-1">Luas Tanah</span>
-                      <span className="font-bold text-slate-700">{item.lt || "-"} m²</span>
-                   </div>
-                   <div className="text-center border-l border-slate-100">
-                      <span className="block text-slate-400 text-xs font-medium mb-1">K. Tidur</span>
-                      <span className="font-bold text-slate-700">{item.beds}</span>
-                   </div>
-                   <div className="text-center border-l border-slate-100">
-                      <span className="block text-slate-400 text-xs font-medium mb-1">K. Mandi</span>
-                      <span className="font-bold text-slate-700">{item.baths}</span>
-                   </div>
-                </div>
-              </div>
+      {/* HERO SECTION */}
+      <section id="home" className="relative h-[550px] flex items-center justify-center bg-dark overflow-hidden">
+        <img src="https://res.cloudinary.com/dzcccwsnk/image/upload/v1764346166/2742d87f35a87f630f655d25df709524_m771cx.jpg" className="absolute inset-0 w-full h-full object-cover opacity-40 pointer-events-none z-0" />
+        <div className="absolute inset-0 bg-gradient-to-t from-darkblue via-darkblue/60 to-transparent pointer-events-none z-0"></div>
+        
+        <div className="relative z-10 container mx-auto px-4 text-center text-white mt-10">
+            <span className="bg-white/10 border border-white/30 px-4 py-1 rounded-full text-xs md:text-sm font-semibold mb-6 inline-block backdrop-blur-sm shadow-sm pointer-events-none">
+                <i className="fa-solid fa-star text-secondary mr-1"></i> #1 Agency Terpercaya
+            </span>
+            <h1 className="text-3xl md:text-6xl font-bold mb-6 leading-tight drop-shadow-lg pointer-events-none">
+                Hunian Masa Depan<br/>Bersama Gold Grandis
+            </h1>
+            <p className="text-gray-200 mb-10 text-sm md:text-xl max-w-2xl mx-auto font-light leading-relaxed pointer-events-none">
+                Spesialis jual beli Rumah Baru, Second, Ruko, Tanah, hingga Over Kredit dengan proses aman dan transparan di Jabodetabek.
+            </p>
+            
+            <div className="flex flex-col md:flex-row gap-4 justify-center items-center w-full max-w-sm mx-auto md:max-w-none relative z-50">
+                <Link href="/properti" className="w-full md:w-auto bg-primary hover:bg-blue-600 text-white px-8 py-3 rounded-lg font-bold text-base md:text-lg transition shadow-lg text-center cursor-pointer transform hover:-translate-y-1 block">
+                    Cari Properti
+                </Link>
+                <Link href="/tentang-kami" className="w-full md:w-auto bg-transparent hover:bg-white hover:text-darkblue border border-white text-white px-8 py-3 rounded-lg font-bold text-base md:text-lg transition text-center cursor-pointer transform hover:-translate-y-1 block">
+                    Tentang Kami
+                </Link>
             </div>
-          ))}
         </div>
       </section>
 
-      {/* --- 4. MODAL / POP-UP DETAIL (ESTETIK) --- */}
-      {selectedProp && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-           {/* Backdrop Gelap Blur */}
-           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm transition-opacity" onClick={closeModal}></div>
-           
-           {/* Kotak Modal */}
-           <div className="relative bg-white w-full max-w-5xl h-[90vh] md:h-auto md:max-h-[90vh] rounded-3xl shadow-2xl overflow-hidden flex flex-col md:flex-row animate-in fade-in zoom-in duration-300">
-              
-              {/* Tombol Close Floating */}
-              <button onClick={closeModal} className="absolute top-4 right-4 z-20 bg-white/20 backdrop-blur hover:bg-white text-white hover:text-black p-2 rounded-full transition">
-                 <X size={24}/>
-              </button>
-
-              {/* Bagian Kiri: Galeri Foto */}
-              <div className="w-full md:w-1/2 bg-black relative flex flex-col justify-center">
-                 <img 
-                   src={selectedProp.gallery && selectedProp.gallery.length > 0 ? selectedProp.gallery[activeImageIndex] : selectedProp.image} 
-                   className="w-full h-[300px] md:h-full object-contain bg-black"
-                 />
-                 
-                 {/* Thumbnail Slider Kecil */}
-                 {selectedProp.gallery && selectedProp.gallery.length > 1 && (
-                   <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-2 px-4 overflow-x-auto">
-                      {selectedProp.gallery.map((img: string, idx: number) => (
-                        <button 
-                          key={idx} 
-                          onClick={() => setActiveImageIndex(idx)}
-                          className={`w-14 h-14 rounded-lg overflow-hidden border-2 transition ${activeImageIndex === idx ? 'border-[#d4af37]' : 'border-transparent opacity-70'}`}
-                        >
-                           <img src={img} className="w-full h-full object-cover"/>
-                        </button>
-                      ))}
-                   </div>
-                 )}
-              </div>
-
-              {/* Bagian Kanan: Info Detail */}
-              <div className="w-full md:w-1/2 p-8 overflow-y-auto bg-white">
-                 <span className="inline-block bg-blue-50 text-[#0a2558] text-xs font-bold px-3 py-1 rounded-full mb-4">
-                    {selectedProp.type || "Properti"}
-                 </span>
-                 <h2 className="text-2xl md:text-3xl font-bold text-[#0a2558] mb-2">{selectedProp.title}</h2>
-                 <p className="text-3xl font-bold text-[#d4af37] mb-6">{formatRupiah(selectedProp.price)}</p>
-
-                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-                    <div className="bg-slate-50 p-3 rounded-xl text-center">
-                       <Maximize2 size={20} className="mx-auto text-slate-400 mb-1"/>
-                       <p className="text-xs text-slate-400">Luas Tanah</p>
-                       <p className="font-bold text-[#0a2558]">{selectedProp.lt || "-"} m²</p>
-                    </div>
-                    <div className="bg-slate-50 p-3 rounded-xl text-center">
-                       <Home size={20} className="mx-auto text-slate-400 mb-1"/>
-                       <p className="text-xs text-slate-400">Luas Bangunan</p>
-                       <p className="font-bold text-[#0a2558]">{selectedProp.lb || "-"} m²</p>
-                    </div>
-                    <div className="bg-slate-50 p-3 rounded-xl text-center">
-                       <Bed size={20} className="mx-auto text-slate-400 mb-1"/>
-                       <p className="text-xs text-slate-400">K. Tidur</p>
-                       <p className="font-bold text-[#0a2558]">{selectedProp.beds}</p>
-                    </div>
-                    <div className="bg-slate-50 p-3 rounded-xl text-center">
-                       <Bath size={20} className="mx-auto text-slate-400 mb-1"/>
-                       <p className="text-xs text-slate-400">K. Mandi</p>
-                       <p className="font-bold text-[#0a2558]">{selectedProp.baths}</p>
-                    </div>
-                 </div>
-
-                 <div className="mb-8">
-                    <h3 className="font-bold text-lg text-[#0a2558] mb-3">Deskripsi Properti</h3>
-                    <p className="text-slate-600 leading-relaxed text-sm whitespace-pre-line">
-                       {selectedProp.description || "Tidak ada deskripsi tersedia."}
-                    </p>
-                 </div>
-
-                 {/* Tombol Action Sticky */}
-                 <div className="sticky bottom-0 bg-white pt-4 border-t mt-auto">
-                    <a 
-                      href={`https://wa.me/6285117490500?text=Halo Gold Grandis, saya tertarik dengan properti: ${selectedProp.title} (${formatRupiah(selectedProp.price)})`}
-                      target="_blank"
-                      className="w-full bg-[#25D366] hover:bg-[#20bd5a] text-white font-bold py-4 rounded-xl flex items-center justify-center gap-2 transition shadow-lg hover:shadow-green-200"
-                    >
-                       <MessageCircle size={20}/> Hubungi via WhatsApp
-                    </a>
-                    <p className="text-center text-xs text-slate-400 mt-3">Agen kami akan merespon dalam waktu singkat.</p>
-                 </div>
-              </div>
-           </div>
+      {/* STATS SECTION */}
+      <section className="bg-white py-8 shadow-sm relative z-20 -mt-10 mx-4 md:mx-20 rounded-xl border-b-4 border-primary">
+        <div className="container mx-auto grid grid-cols-2 md:grid-cols-4 gap-4 text-center divide-x divide-gray-100">
+            <div><h3 className="text-2xl font-bold text-primary">Amanah</h3><p className="text-gray-500 text-sm">Transaksi Terpercaya</p></div>
+            <div><h3 className="text-2xl font-bold text-primary">Selektif</h3><p class="text-gray-500 text-sm">Listing Pilihan</p></div>
+            <div><h3 className="text-2xl font-bold text-primary">4 Tahun</h3><p className="text-gray-500 text-sm">Pengalaman</p></div>
+            <div><h3 className="text-2xl font-bold text-primary">Profesional</h3><p className="text-gray-500 text-sm">Pelayanan Terbaik</p></div>
         </div>
-      )}
+      </section>
 
-      {/* --- 5. FOOTER MINIMALIS --- */}
-      <footer className="bg-white border-t border-slate-100 py-12 text-center">
-         <p className="text-slate-400 text-sm">© 2025 Gold Grandis Property. All rights reserved.</p>
+      {/* LISTING SECTION */}
+      <section id="listing" className="py-20 bg-gray-50">
+        <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+                <h2 className="text-3xl md:text-4xl font-bold text-darkblue mb-3">Listing Terbaru</h2>
+                <div className="w-20 h-1 bg-primary mx-auto mb-4"></div>
+                <p className="text-gray-600 text-sm md:text-base">Properti pilihan terbaru yang baru saja kami tambahkan.</p>
+            </div>
+
+            {loading && (
+                <div className="text-center py-10">
+                    <i className="fa-solid fa-circle-notch fa-spin text-primary text-3xl"></i>
+                    <p className="text-gray-500 mt-2 text-sm">Memuat data...</p>
+                </div>
+            )}
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 justify-items-center">
+                {properties.map((prop) => (
+                    <div key={prop.id} className="group cursor-pointer block mx-auto bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all duration-300 w-full max-w-[280px] flex flex-col h-[400px] relative z-30 transform hover:-translate-y-2">
+                        <div className="relative h-[220px] w-full overflow-hidden bg-gray-200 shrink-0">
+                            <span className="absolute top-3 left-3 bg-primary text-white text-[10px] px-2 py-1 rounded z-10 uppercase font-bold shadow">{prop.type || 'Properti'}</span>
+                            <img src={prop.image || 'https://via.placeholder.com/280x310'} className="w-full h-full object-cover group-hover:scale-105 transition duration-500" />
+                            <span className="absolute top-3 right-3 bg-red-500 text-white text-[10px] px-2 py-1 rounded z-10 font-bold shadow animate-pulse">BARU</span>
+                        </div>
+                        
+                        <div className="p-4 flex flex-col justify-between flex-1">
+                            <div>
+                                <h3 className="font-bold text-darkblue text-base line-clamp-2 leading-tight mb-1 group-hover:text-primary transition">{prop.title}</h3>
+                                <div className="flex items-center text-gray-500 text-xs mt-1 mb-2">
+                                    <i className="fa-solid fa-location-dot mr-1 text-red-500"></i> 
+                                    <span className="truncate max-w-[200px]">{prop.location}</span>
+                                </div>
+                            </div>
+                            
+                            <p className="text-lg font-bold text-secondary">{formatRupiah(prop.price)}</p>
+                        </div>
+                    </div>
+                ))}
+            </div>
+
+            <div className="text-center mt-12">
+                <Link href="/properti" className="inline-block border-2 border-primary text-primary hover:bg-primary hover:text-white px-8 py-3 rounded-lg font-bold transition cursor-pointer text-sm md:text-base">
+                    Lihat Semua Listing <i className="fa-solid fa-arrow-right ml-2"></i>
+                </Link>
+            </div>
+        </div>
+      </section>
+
+      {/* SERVICES SECTION */}
+      <section id="services" className="py-24 bg-white overflow-hidden border-t border-gray-100">
+        <div className="container mx-auto px-4">
+            <div className="flex flex-col lg:flex-row items-center gap-16">
+                
+                <div className="w-full lg:w-1/2 relative hidden md:block"> 
+                    <div className="relative rounded-2xl overflow-hidden shadow-2xl group h-[500px]">
+                         <div className="absolute inset-0 bg-primary/10 group-hover:bg-transparent transition duration-500 z-10 pointer-events-none"></div>
+                         <img src="https://images.unsplash.com/photo-1560518883-ce09059eeffa?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Agen Properti" className="w-full h-full object-cover transform group-hover:scale-105 transition duration-700" />
+                    </div>
+                </div>
+                
+                <div className="w-full lg:w-1/2">
+                    <span className="text-secondary font-bold tracking-wider uppercase text-sm mb-2 block">Layanan Kami</span>
+                    <h2 className="text-3xl md:text-4xl font-bold text-darkblue mb-6 leading-tight">Solusi Properti <br/>Terlengkap & Terpercaya</h2>
+                    <p className="text-gray-600 mb-8 leading-relaxed text-base">
+                        Gold Grandis Property hadir untuk mempermudah perjalanan properti Anda. Kami menyediakan layanan <i>end-to-end</i> mulai dari konsultasi hingga serah terima kunci.
+                    </p>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div className="flex items-start gap-4 p-4 rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition hover:border-blue-100">
+                            <div className="w-12 h-12 bg-blue-100 text-primary rounded-full flex items-center justify-center text-xl shrink-0"><i className="fa-solid fa-house-chimney"></i></div>
+                            <div><h4 className="font-bold text-darkblue text-lg mb-1">Jual Beli Rumah</h4><p className="text-sm text-gray-500 leading-snug">Listing eksklusif rumah baru & second legalitas aman.</p></div>
+                        </div>
+                        <div className="flex items-start gap-4 p-4 rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition hover:border-blue-100">
+                            <div className="w-12 h-12 bg-blue-100 text-primary rounded-full flex items-center justify-center text-xl shrink-0"><i className="fa-solid fa-hand-holding-dollar"></i></div>
+                            <div><h4 className="font-bold text-darkblue text-lg mb-1">Over Kredit</h4><p className="text-sm text-gray-500 leading-snug">Proses cepat, resmi, dan transparan.</p></div>
+                        </div>
+                        <div className="flex items-start gap-4 p-4 rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition hover:border-blue-100">
+                            <div className="w-12 h-12 bg-blue-100 text-primary rounded-full flex items-center justify-center text-xl shrink-0"><i className="fa-solid fa-shop"></i></div>
+                            <div><h4 className="font-bold text-darkblue text-lg mb-1">Komersial</h4><p className="text-sm text-gray-500 leading-snug">Ruko & ruang usaha di lokasi strategis.</p></div>
+                        </div>
+                        <div className="flex items-start gap-4 p-4 rounded-xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition hover:border-blue-100">
+                            <div className="w-12 h-12 bg-blue-100 text-primary rounded-full flex items-center justify-center text-xl shrink-0"><i className="fa-solid fa-layer-group"></i></div>
+                            <div><h4 className="font-bold text-darkblue text-lg mb-1">Tanah Kavling</h4><p className="text-sm text-gray-500 leading-snug">Pilihan tanah prospektif untuk hunian/investasi.</p></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+      </section>
+
+      {/* ABOUT SECTION */}
+      <section id="about" className="py-20 bg-darkblue text-white text-center relative overflow-hidden">
+        <i className="fa-solid fa-building-columns text-white/5 absolute -top-10 -left-10 text-9xl"></i>
+        <i className="fa-solid fa-city text-white/5 absolute -bottom-10 -right-10 text-9xl"></i>
+
+        <div className="container mx-auto px-4 max-w-4xl relative z-10">
+            <h2 className="text-3xl font-bold mb-6">Tentang Gold Grandis</h2>
+            <p className="text-lg text-gray-300 mb-10 leading-relaxed">
+                "Kami bukan sekadar menjual properti, kami membantu Anda menemukan tempat untuk membangun masa depan. Dengan jaringan luas di seluruh Jabodetabek dan tim yang berdedikasi, kami menjamin pengalaman transaksi yang aman, nyaman, dan menguntungkan."
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <div className="bg-white/5 p-6 rounded-xl border border-white/10 backdrop-blur-sm">
+                    <i className="fa-solid fa-shield-halved text-4xl text-primary mb-3"></i>
+                    <h4 className="font-bold text-lg">Legalitas Terjamin</h4>
+                    <p className="text-sm text-gray-400 mt-2">Cek sertifikat dan dokumen hingga tuntas.</p>
+                </div>
+                <div className="bg-white/5 p-6 rounded-xl border border-white/10 backdrop-blur-sm">
+                    <i className="fa-solid fa-bolt text-4xl text-primary mb-3"></i>
+                    <h4 className="font-bold text-lg">Respon Cepat</h4>
+                    <p className="text-sm text-gray-400 mt-2">Siap melayani survei kapan saja.</p>
+                </div>
+                <div className="bg-white/5 p-6 rounded-xl border border-white/10 backdrop-blur-sm">
+                    <i className="fa-solid fa-handshake text-4xl text-primary mb-3"></i>
+                    <h4 className="font-bold text-lg">Negosiasi Terbaik</h4>
+                    <p className="text-sm text-gray-400 mt-2">Harga deal yang menguntungkan kedua pihak.</p>
+                </div>
+            </div>
+        </div>
+      </section>
+
+      {/* FOOTER */}
+      <footer id="contact" className="bg-dark text-gray-300 py-12 border-t border-gray-800">
+        <div className="container mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-8 justify-between">
+            <div>
+                <div className="mb-4">
+                    <img src="https://res.cloudinary.com/dzcccwsnk/image/upload/v1764346570/Project_2_tligfr.png" alt="Gold Grandis Logo" className="h-12 w-auto object-contain"/>
+                </div>
+                <p className="text-sm mb-6 text-gray-400 leading-relaxed max-w-sm text-justify">Partner properti terpercaya Anda di wilayah Jabodetabek. Melayani jual beli dan sewa dengan profesionalisme tinggi.</p>
+                <div className="flex space-x-4">
+                    <a href="https://web.facebook.com/p/Gold-Grandis-Property-61555696204327/?_rdc=1&_rdr#" target="_blank" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-white hover:bg-primary hover:text-white transition"><i className="fa-brands fa-facebook-f"></i></a>
+                    <a href="https://www.instagram.com/goldgrandisproperty/#" target="_blank" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-white hover:bg-primary hover:text-white transition"><i className="fa-brands fa-instagram"></i></a>
+                    <a href="https://www.tiktok.com/@gold.grandis.property" target="_blank" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-white hover:bg-primary hover:text-white transition"><i className="fa-brands fa-tiktok"></i></a>
+                    <a href="https://www.youtube.com/@goldgrandisproperty" target="_blank" className="w-10 h-10 rounded-full bg-gray-800 flex items-center justify-center text-white hover:bg-primary hover:text-white transition"><i className="fa-brands fa-youtube"></i></a>
+                </div>
+            </div>
+            <div className="md:text-right">
+                <h4 className="text-lg font-bold text-white mb-4">Hubungi Kami</h4>
+                <ul className="space-y-4 text-sm md:flex md:flex-col md:items-end">
+                    <li className="flex items-start gap-3 md:flex-row-reverse">
+                        <i className="fa-solid fa-location-dot mt-1 text-primary"></i>
+                        <span>Jagakarsa, Jakarta Selatan,<br/>DKI Jakarta, Indonesia</span>
+                    </li>
+                    <li className="flex items-center gap-3 md:flex-row-reverse">
+                        <i className="fa-brands fa-whatsapp text-primary text-lg"></i>
+                        <a href="https://wa.me/6285117490500" className="hover:text-primary transition">0851 1749 0500</a>
+                    </li>
+                    <li className="flex items-center gap-3 md:flex-row-reverse">
+                        <i className="fa-regular fa-envelope text-primary"></i>
+                        <a href="mailto:goldgrandisagency@gmail.com" className="hover:text-primary transition">goldgrandisagency@gmail.com</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div className="border-t border-gray-800 mt-10 pt-6 text-center text-xs text-gray-500">
+            &copy; 2024 Gold Grandis Property. All Rights Reserved.
+        </div>
       </footer>
+
     </main>
   );
 }

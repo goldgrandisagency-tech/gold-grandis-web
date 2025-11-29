@@ -61,13 +61,13 @@ export default function Home() {
              </div>
           </div>
 
-          {/* Menu Desktop */}
-          <div className="hidden md:flex gap-8 text-gray-600 font-semibold text-sm">
-            <Link href="#" className="hover:text-[#0a2558] border-b-2 border-transparent hover:border-[#d4af37] py-1 transition">Dijual</Link>
-            <Link href="#" className="hover:text-[#0a2558] border-b-2 border-transparent hover:border-[#d4af37] py-1 transition">Disewa</Link>
-            <Link href="#" className="hover:text-[#0a2558] border-b-2 border-transparent hover:border-[#d4af37] py-1 transition">KPR</Link>
-            <Link href="/admin" className="hover:text-[#0a2558] border-b-2 border-transparent hover:border-[#d4af37] py-1 transition">Admin</Link>
-          </div>
+{/* Menu Desktop */}
+<div className="hidden md:flex gap-8 text-gray-600 font-semibold text-sm">
+  <Link href="/" className="hover:text-[#0a2558] border-b-2 border-transparent hover:border-[#d4af37] py-1 transition">Beranda</Link>
+  <Link href="/properti" className="hover:text-[#0a2558] border-b-2 border-transparent hover:border-[#d4af37] py-1 transition">Listing</Link>
+  <Link href="/tentang-kami" className="hover:text-[#0a2558] border-b-2 border-transparent hover:border-[#d4af37] py-1 transition">Tentang Kami</Link>
+  <Link href="/admin" className="hover:text-[#0a2558] border-b-2 border-transparent hover:border-[#d4af37] py-1 transition">Admin</Link>
+</div>
 
           {/* Tombol Mobile */}
           <div className="md:hidden text-[#0a2558]">
